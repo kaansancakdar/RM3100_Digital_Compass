@@ -1,3 +1,2 @@
-../Core/Src/RM3100.c:20:9:Set_CMM_Register	24	static
-../Core/Src/RM3100.c:27:9:Convert_Measurement_to_Int24	24	static
-../Core/Src/RM3100.c:41:9:Get_Micro_Tesla	32	static
+../Core/Src/RM3100.c:19:9:Set_CMM_Register	24	static
+../Core/Src/RM3100.c:26:9:Convert_Measurement_to_Int24	24	static

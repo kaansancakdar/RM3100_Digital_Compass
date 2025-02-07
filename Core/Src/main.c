@@ -19,15 +19,17 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "RM3100.h"
+
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-//uint16_t RM3100_I2C_Address=RM3100_ADDRESS_HH<<1;
-uint16_t RM3100_I2C_Address = (0x23 << 1);
 
 uint8_t Continuous_Measurement_Mode_Value;
 uint8_t RM3100_Init_Status;
@@ -40,11 +42,16 @@ uint8_t RM3100_status;
 
 int32_t Mx, My, Mz;
 
-float Mx_mT, My_mT, Mz_mT;
+float Mx_uT, My_uT, Mz_uT;
 
 
 static RM3100_ RM3100;
 
+char sendData[100];
+
+float heading;
+float heading_cal;
+float magnetic_declination = -9.76;
 
 /* USER CODE END PTD */
 
@@ -239,6 +246,14 @@ int main(void)
 
 	RM3100_Init_Status = RM3100_Init(RM3100.Continuous_Measurement_Value, RM3100.TMRC, RM3100.Cycle_Count_Value);
 
+	//Hard Iron Calibration Settings
+	//Calculate from MotionCal Magnetic Calibration Tool
+	const float hard_iron[3] = { 7.06, -5.32, 4.93 };
+
+	//Soft Iron Calibration Settings
+	//Calculate from MotionCal Magnetic Calibration Tool
+	const float soft_iron[3][3] = { { 0.974, 0.016, 0.026 }, { 0.016, 0.988, -0.009 }, { 0.026, -0.009, 1.040 } };
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -246,6 +261,9 @@ int main(void)
 	while (1)
 	{
 		/* USER CODE END WHILE */
+
+		static float hi_cal[3];
+		float mag_data[] = { Mx_uT, My_uT, Mz_uT }; //Calibated magnetometer value
 
 		RM3100_status = Check_RM3100_Status();
 		if (Check_RM3100_Status() == 1)
@@ -263,6 +281,37 @@ int main(void)
 		float gain = (0.3671 * (float)RM3100.Cycle_Count_Value) + 1.5;
 
 
+		Mx_uT=Mx/gain;
+		My_uT=My/gain;
+		Mz_uT=Mz/gain;
+
+
+		//sprintf(sendData, "Raw:0,0,0,0,0,0,%d,%d,%d\r\n", Mx, My, Mz);
+		sprintf(sendData, "%.2f,%.2f,%.2f\r\n", Mx_uT, My_uT, Mz_uT);
+		HAL_UART_Transmit(&huart1, (uint8_t*) sendData, strlen(sendData), 1000);
+
+
+		//Apply Hard iron offsets
+		for (int i = 0; i < 3; i++)
+		{
+			hi_cal[i] = mag_data[i] - hard_iron[i];
+		}
+
+	  //Apply soft iron scaling
+		for (int i = 0; i < 3; i++)
+		{
+			mag_data[i] = (soft_iron[i][0] * hi_cal[0]) + (soft_iron[i][1] * hi_cal[1]) + (soft_iron[i][2] * hi_cal[2]);
+		}
+
+		heading_cal = atan2(mag_data[1], mag_data[0]);
+		heading_cal = (heading_cal * 180 / M_PI) + magnetic_declination;
+
+		if (heading_cal < 0)
+		{
+			heading_cal += 2 * M_PI;
+		}
+
+		HAL_Delay(10);
 
 
 		/* USER CODE BEGIN 3 */

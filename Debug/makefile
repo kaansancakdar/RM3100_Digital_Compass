@@ -60,8 +60,8 @@ all: main-build
 main-build: RM3100_Digital_Compass.elf secondary-outputs
 
 # Tool invocations
-RM3100_Digital_Compass.elf RM3100_Digital_Compass.map: $(OBJS) $(USER_OBJS) C:\Users\kaan.sancakdar\Desktop\Digital_Compass\RM3100_Digital_Compass\STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -gdwarf-4 -o "RM3100_Digital_Compass.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\kaan.sancakdar\Desktop\Digital_Compass\RM3100_Digital_Compass\STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RM3100_Digital_Compass.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+RM3100_Digital_Compass.elf RM3100_Digital_Compass.map: $(OBJS) $(USER_OBJS) C:\Users\kaan.sancakdar\Desktop\Digital_Compass\RM3100_Digital_Compass\RM3100_Digital_Compass\STM32F401CCUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -gdwarf-4 -o "RM3100_Digital_Compass.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\kaan.sancakdar\Desktop\Digital_Compass\RM3100_Digital_Compass\RM3100_Digital_Compass\STM32F401CCUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="RM3100_Digital_Compass.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

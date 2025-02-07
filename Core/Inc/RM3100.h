@@ -150,4 +150,3 @@ typedef struct
 
 uint8_t Set_CMM_Register(uint8_t Z_Axis_Read, uint8_t Y_Axis_Read, uint8_t X_Axis_Read, uint8_t DRDM_Value, uint8_t CMM_State);
 int32_t Convert_Measurement_to_Int24(uint8_t MSB, uint8_t MID, uint8_t LSB);
-int32_t Get_Micro_Tesla(int32_t Measurement_value, uint8_t Cycle_Count);
